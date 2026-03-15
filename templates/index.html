@@ -1,0 +1,687 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CareerDNA — Neural Career Intelligence</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --void:#050508;--deep:#0a0a10;--surface:#0f0f18;--card:#141420;
+  --border:#1e1e2e;--border2:#2a2a40;--text:#e8e6f0;--muted:#6b6880;--dim:#3a3850;
+  --cyan:#00d4ff;--green:#00ff88;--amber:#ffaa00;--red:#ff4466;--purple:#9966ff;
+}
+html{scroll-behavior:smooth}
+body{background:var(--void);color:var(--text);font-family:'DM Sans',sans-serif;min-height:100vh;overflow-x:hidden}
+body::before{content:'';position:fixed;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,212,255,.005) 2px,rgba(0,212,255,.005) 4px);pointer-events:none;z-index:998}
+body::after{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(0,212,255,.02) 1px,transparent 1px),linear-gradient(90deg,rgba(0,212,255,.02) 1px,transparent 1px);background-size:48px 48px;pointer-events:none;z-index:0}
+#srv-bar{padding:10px 24px;text-align:center;font-family:'Space Mono',monospace;font-size:12px;display:none;position:sticky;top:0;z-index:200}
+#srv-bar.off{background:#1a0008;border-bottom:1px solid rgba(255,68,102,.3);color:var(--red)}
+#srv-bar.on{background:#001a0e;border-bottom:1px solid rgba(0,255,136,.3);color:var(--green)}
+#srv-bar.chk{background:#0a0a10;border-bottom:1px solid rgba(0,212,255,.2);color:var(--cyan)}
+nav{position:sticky;top:0;z-index:100;border-bottom:1px solid var(--border);background:rgba(5,5,8,.96);backdrop-filter:blur(24px)}
+.nav-inner{max-width:1140px;margin:0 auto;padding:0 24px;display:flex;align-items:center;height:58px;overflow-x:auto}
+.logo{font-family:'Space Mono',monospace;font-size:14px;font-weight:700;letter-spacing:2px;color:var(--cyan);margin-right:32px;white-space:nowrap;flex-shrink:0}
+.logo span{color:var(--text)}
+.nav-tabs{display:flex;flex-shrink:0}
+.tab{padding:0 15px;height:58px;display:flex;align-items:center;font-size:12px;font-weight:500;color:var(--muted);cursor:pointer;border:none;background:none;font-family:'DM Sans',sans-serif;border-bottom:2px solid transparent;transition:all .2s;white-space:nowrap}
+.tab:hover{color:var(--text)}
+.tab.active{color:var(--cyan);border-bottom-color:var(--cyan)}
+.nbadge{font-family:'Space Mono',monospace;font-size:10px;padding:3px 10px;border-radius:20px;background:rgba(0,212,255,.1);border:1px solid rgba(0,212,255,.2);color:var(--cyan);margin-left:auto;flex-shrink:0}
+.page{display:none;max-width:1140px;margin:0 auto;padding:44px 24px;position:relative;z-index:1}
+.page.active{display:block}
+.hero{padding-bottom:40px;border-bottom:1px solid var(--border);margin-bottom:40px}
+.ey{font-family:'Space Mono',monospace;font-size:10px;letter-spacing:3px;text-transform:uppercase;color:var(--cyan);margin-bottom:16px;display:flex;align-items:center;gap:12px}
+.ey::before{content:'';width:24px;height:1px;background:var(--cyan)}
+.dot{width:6px;height:6px;border-radius:50%;background:var(--cyan);animation:blink 2s infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
+h1.t{font-family:'Syne',sans-serif;font-size:clamp(40px,6vw,82px);font-weight:800;line-height:.92;letter-spacing:-2px;margin-bottom:16px}
+h1.t .ac{color:var(--cyan);display:block}
+h1.t .fd{color:var(--dim);display:block}
+.sub{font-size:14px;color:var(--muted);max-width:500px;line-height:1.85;margin-bottom:24px}
+.chips{display:flex;gap:7px;flex-wrap:wrap}
+.chip{font-family:'Space Mono',monospace;font-size:10px;padding:4px 11px;border-radius:4px;border:1px solid var(--border2);color:var(--muted)}
+.chip.on{border-color:rgba(0,212,255,.35);color:var(--cyan);background:rgba(0,212,255,.06)}
+.two-col{display:grid;grid-template-columns:1fr 420px;gap:20px;align-items:start}
+.card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:26px}
+.card.glow:hover{border-color:rgba(0,212,255,.2)}
+.sl{font-family:'Space Mono',monospace;font-size:9px;letter-spacing:3px;text-transform:uppercase;color:var(--muted);margin-bottom:8px;display:flex;align-items:center;gap:6px}
+.sl::before{content:'//';color:var(--dim)}
+.ct{font-family:'Syne',sans-serif;font-size:18px;font-weight:700;margin-bottom:18px}
+.field{margin-bottom:18px}
+.fl{font-family:'Space Mono',monospace;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:7px;display:flex;justify-content:space-between}
+.fl .cnt{color:var(--cyan)}
+textarea,select,input[type=text]{width:100%;background:var(--deep);border:1px solid var(--border2);border-radius:8px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:13px;outline:none;transition:border-color .2s}
+textarea{padding:13px;min-height:120px;resize:vertical;line-height:1.7}
+select,input[type=text]{padding:10px 13px}
+textarea:focus,select:focus,input[type=text]:focus{border-color:rgba(0,212,255,.45)}
+select{appearance:none;cursor:pointer}
+.sinp{display:flex;gap:8px;margin-bottom:9px}
+.sinp input{flex:1}
+.tags{display:flex;flex-wrap:wrap;gap:6px;min-height:30px}
+.tag{font-family:'Space Mono',monospace;font-size:11px;padding:4px 11px;border-radius:4px;background:rgba(0,212,255,.08);border:1px solid rgba(0,212,255,.2);color:var(--cyan);cursor:pointer;display:flex;align-items:center;gap:5px;transition:all .15s}
+.tag:hover{background:rgba(255,68,102,.1);border-color:rgba(255,68,102,.3);color:var(--red)}
+.int-tag.sel{background:rgba(0,212,255,.15)!important;border-color:rgba(0,212,255,.5)!important;color:var(--cyan)!important}
+.btn{width:100%;padding:13px;background:var(--cyan);color:var(--void);border:none;border-radius:8px;font-family:'Syne',sans-serif;font-size:15px;font-weight:700;cursor:pointer;transition:all .2s}
+.btn:hover{background:#22eeff;box-shadow:0 0 24px rgba(0,212,255,.25)}
+.bsm{padding:8px 16px;width:auto;font-size:12px;border-radius:6px}
+.nstrip{display:flex;gap:6px;flex-wrap:wrap;margin-top:16px;padding-top:16px;border-top:1px solid var(--border)}
+.nb{font-family:'Space Mono',monospace;font-size:9px;padding:3px 9px;border-radius:4px;background:rgba(153,102,255,.08);border:1px solid rgba(153,102,255,.2);color:var(--purple)}
+.empty{text-align:center;padding:52px 20px;color:var(--muted)}
+.empty .ico{font-size:44px;margin-bottom:12px;opacity:.35}
+.empty p{font-size:13px;line-height:1.9}
+.err-box{background:rgba(255,68,102,.06);border:1px solid rgba(255,68,102,.25);border-radius:10px;padding:24px;text-align:center}
+.err-ico{font-size:36px;margin-bottom:12px}
+.err-box h3{font-family:'Syne',sans-serif;font-size:18px;font-weight:700;color:var(--red);margin-bottom:8px}
+.err-box p{font-size:13px;color:var(--muted);line-height:1.8;margin-bottom:10px}
+.err-box code{font-family:'Space Mono',monospace;font-size:12px;background:var(--deep);border:1px solid var(--border2);border-radius:4px;padding:7px 13px;display:block;color:var(--cyan);margin:5px auto;max-width:260px}
+.lbox{text-align:center;padding:52px 20px}
+.spin{width:40px;height:40px;border:3px solid var(--border2);border-top-color:var(--cyan);border-radius:50%;animation:sp .8s linear infinite;margin:0 auto 16px}
+@keyframes sp{to{transform:rotate(360deg)}}
+.lbox p{font-family:'Space Mono',monospace;font-size:11px;color:var(--muted);letter-spacing:2px}
+.sh{text-align:center;padding:26px;background:var(--deep);border-radius:10px;border:1px solid var(--border);margin-bottom:14px}
+.sv{font-family:'Syne',sans-serif;font-size:72px;font-weight:800;line-height:1;letter-spacing:-2px}
+.slb{font-family:'Space Mono',monospace;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-top:4px}
+.sverd{font-size:14px;font-weight:600;margin-top:7px}
+.br{display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:1px solid var(--border)}
+.br-label{font-size:11px;color:var(--muted);min-width:148px}
+.br-track{flex:1;height:5px;background:var(--border2);border-radius:3px;overflow:hidden}
+.br-fill{height:100%;border-radius:3px;transition:width 1.2s cubic-bezier(.34,1.56,.64,1)}
+.br-val{font-family:'Space Mono',monospace;font-size:11px;min-width:32px;text-align:right}
+.cc{background:var(--deep);border:1px solid var(--border);border-radius:10px;padding:16px;margin-bottom:9px;transition:border-color .2s}
+.cc:hover{border-color:rgba(0,212,255,.2)}
+.cc-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:9px}
+.cc-name{font-family:'Syne',sans-serif;font-size:15px;font-weight:700}
+.cc-rank{font-family:'Space Mono',monospace;font-size:9px;color:var(--muted);margin-bottom:3px}
+.cc-match{font-family:'Syne',sans-serif;font-size:22px;font-weight:800}
+.cc-tags{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:7px}
+.kt{font-family:'Space Mono',monospace;font-size:9px;padding:3px 7px;border-radius:3px}
+.kh{background:rgba(0,255,136,.08);border:1px solid rgba(0,255,136,.2);color:var(--green)}
+.km{background:rgba(255,170,0,.08);border:1px solid rgba(255,170,0,.2);color:var(--amber)}
+.cc-meta{font-family:'Space Mono',monospace;font-size:11px;color:var(--muted)}
+.di{display:flex;align-items:center;gap:11px;padding:12px;background:var(--deep);border:1px solid var(--border);border-radius:8px;margin-bottom:7px}
+.di-ico{font-size:17px;width:26px;text-align:center;flex-shrink:0}
+.di-info{flex:1}
+.di-name{font-weight:500;font-size:13px}
+.di-note{font-size:11px;color:var(--muted);margin-top:2px}
+.dtag{font-family:'Space Mono',monospace;font-size:10px;padding:3px 8px;border-radius:4px}
+.tup{background:rgba(0,255,136,.1);color:var(--green);border:1px solid rgba(0,255,136,.2)}
+.tdn{background:rgba(255,68,102,.1);color:var(--red);border:1px solid rgba(255,68,102,.2)}
+.tst{background:rgba(255,170,0,.1);color:var(--amber);border:1px solid rgba(255,170,0,.2)}
+.di-bar{width:70px;flex-shrink:0}
+.di-bg{height:4px;background:var(--border2);border-radius:2px}
+.di-fill{height:100%;border-radius:2px;transition:width 1s ease}
+.di-pct{font-family:'Space Mono',monospace;font-size:9px;margin-top:3px;text-align:center}
+.tp{padding:12px;background:var(--deep);border:1px solid var(--border);border-radius:8px;margin-bottom:8px}
+.tp-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
+.tp-name{font-weight:600;font-size:13px}
+.tp-sc{font-family:'Syne',sans-serif;font-size:17px;font-weight:800}
+.tp-bar{height:4px;background:var(--border2);border-radius:3px;overflow:hidden;margin-bottom:5px}
+.tp-fill{height:100%;border-radius:3px;transition:width 1s ease}
+.tp-tip{font-size:11px;color:var(--muted);line-height:1.6}
+.wk{border:1px solid var(--border);border-radius:9px;overflow:hidden;margin-bottom:9px}
+.wk-h{display:flex;align-items:center;gap:11px;padding:12px 15px;background:var(--deep);cursor:pointer;transition:background .2s}
+.wk-h:hover{background:var(--surface)}
+.wk-num{font-family:'Space Mono',monospace;font-size:9px;letter-spacing:2px;color:var(--muted);min-width:50px}
+.wk-title{font-weight:600;font-size:13px;flex:1}
+.wk-b{padding:13px 15px;display:none;background:var(--card)}
+.wk-b.open{display:block}
+.wk-item{display:flex;gap:8px;padding:6px 0;border-bottom:1px solid var(--border);font-size:12px;color:var(--muted)}
+.wk-item:last-child{border:none}
+.wk-item::before{content:'→';color:var(--cyan);font-family:'Space Mono',monospace;flex-shrink:0;font-size:10px;margin-top:2px}
+.kw{font-family:'Space Mono',monospace;font-size:10px;padding:3px 8px;border-radius:4px;display:inline-block;margin:3px 3px 3px 0}
+.kw-ok{background:rgba(0,255,136,.08);border:1px solid rgba(0,255,136,.2);color:var(--green)}
+.kw-no{background:rgba(255,68,102,.08);border:1px solid rgba(255,68,102,.2);color:var(--red)}
+.kw-warn{background:rgba(255,170,0,.08);border:1px solid rgba(255,170,0,.2);color:var(--amber)}
+.ats-sr{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--border);font-size:13px}
+.imp{padding:13px 15px;border-radius:8px;margin-bottom:7px;border:1px solid}
+.imp-c{background:rgba(255,68,102,.04);border-color:rgba(255,68,102,.2)}
+.imp-h{background:rgba(255,170,0,.04);border-color:rgba(255,170,0,.2)}
+.imp-m{background:rgba(255,255,136,.03);border-color:rgba(255,255,136,.12)}
+.imp-o{background:rgba(0,255,136,.04);border-color:rgba(0,255,136,.15)}
+.imp-top{display:flex;justify-content:space-between;margin-bottom:5px}
+.imp-cat{font-size:13px;font-weight:600}
+.imp-pts{font-family:'Space Mono',monospace;font-size:10px;color:var(--green)}
+.imp-iss{font-size:11px;color:var(--muted);margin-bottom:3px}
+.imp-fix{font-size:12px;font-weight:500}
+.res-box{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:18px;margin-top:14px}
+.res-title{font-family:'Syne',sans-serif;font-size:15px;font-weight:700;margin-bottom:12px}
+.yt-card{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--border);text-decoration:none;transition:opacity .2s}
+.yt-card:last-child{border:none}
+.yt-card:hover{opacity:.75}
+.yt-thumb{width:36px;height:25px;background:rgba(255,68,102,.15);border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:11px;flex-shrink:0;color:var(--red)}
+.yt-info{flex:1;min-width:0}
+.yt-name{font-size:12px;font-weight:500;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.yt-ch{font-family:'Space Mono',monospace;font-size:9px;color:var(--muted);margin-top:2px}
+.cl{display:flex;align-items:center;gap:10px;padding:8px 11px;background:var(--deep);border:1px solid var(--border);border-radius:7px;margin-bottom:6px;text-decoration:none;transition:border-color .2s}
+.cl:hover{border-color:rgba(0,212,255,.3)}
+.cl-title{font-size:13px;font-weight:500;color:var(--text);flex:1}
+.cl-arr{font-family:'Space Mono',monospace;color:var(--cyan);font-size:12px}
+.ms-row{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px}
+.ms{background:var(--deep);border:1px solid var(--border);border-radius:8px;padding:13px;text-align:center}
+.ms-v{font-family:'Syne',sans-serif;font-size:22px;font-weight:800;line-height:1}
+.ms-l{font-family:'Space Mono',monospace;font-size:9px;letter-spacing:1px;text-transform:uppercase;color:var(--muted);margin-top:4px}
+.cg{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}
+.con{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:22px;transition:border-color .2s}
+.con:hover{border-color:rgba(153,102,255,.3)}
+.con-ico{font-size:24px;margin-bottom:10px}
+.con-name{font-family:'Syne',sans-serif;font-size:16px;font-weight:700;margin-bottom:3px}
+.con-where{font-family:'Space Mono',monospace;font-size:10px;color:var(--green);margin-bottom:9px}
+.con-body{font-size:13px;color:var(--muted);line-height:1.75}
+.con-code{font-family:'Space Mono',monospace;font-size:10px;background:var(--deep);border:1px solid var(--border);border-radius:6px;padding:10px;margin-top:10px;color:#9999bb;line-height:1.7;white-space:pre-wrap;word-break:break-all}
+.hl{color:var(--cyan)}
+@keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+.fu{animation:fadeUp .4s ease both}
+footer{border-top:1px solid var(--border);padding:22px 24px;margin-top:48px;position:relative;z-index:1}
+.foot{max-width:1140px;margin:0 auto;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px}
+.fl2{font-family:'Space Mono',monospace;font-size:10px;color:var(--muted)}
+.fr{font-family:'Syne',sans-serif;font-size:15px;font-weight:800;color:var(--cyan)}
+@media(max-width:840px){.two-col,.cg{grid-template-columns:1fr}.ms-row{grid-template-columns:repeat(2,1fr)}}
+</style>
+</head>
+<body>
+
+<div id="srv-bar"></div>
+
+<nav>
+  <div class="nav-inner">
+    <div class="logo">CAREER<span>DNA</span></div>
+    <div class="nav-tabs">
+      <button class="tab active" onclick="goPage('career',this)">🧬 Career Path</button>
+      <!-- <button class="tab" onclick="goPage('decay',this)">📉 Skill Decay</button> -->
+      <button class="tab" onclick="goPage('iq',this)">🎯 Interview IQ</button>
+      <button class="tab" onclick="goPage('ats',this)">📄 ATS Resume</button>
+      <button class="tab" onclick="goPage('roadmap',this)">🗺️ Roadmap</button>
+      <button class="tab" onclick="goPage('docs',this)">📚 NNDL Docs</button>
+    </div>
+    <div class="nbadge" id="mbadge">CHECKING...</div>
+  </div>
+</nav>
+
+<!-- PAGE 1: CAREER PATH -->
+<div class="page active" id="page-career">
+  <div class="hero">
+    <div class="ey">TensorFlow ANN · Softmax · Cosine Similarity<div class="dot"></div></div>
+    <h1 class="t">Career<span class="ac">Path</span><span class="fd">Predictor</span></h1>
+    <p class="sub">Add skills → Flask backend runs real TensorFlow ANN inference → ranks 14 careers with match %, salary, gaps, and YouTube resources. Zero hardcoding — all AI.</p>
+    <div class="chips"><div class="chip on">Real TF ANN</div><div class="chip on">Softmax Output</div><div class="chip on">Cosine Similarity</div><div class="chip">14 Careers</div><div class="chip">YouTube Resources</div></div>
+  </div>
+  <div class="two-col">
+    <div class="card glow">
+      <div class="sl">Input</div><div class="ct">Your Skills &amp; Interests</div>
+      <div class="field">
+        <div class="fl">Skills <span class="cnt" id="sk-cnt">0 added</span></div>
+        <div class="sinp"><input type="text" id="sk-inp" placeholder="python, react, sql... (comma or Enter)"><button class="btn bsm" onclick="addSkill('sk-inp','sk-tags',cSkills,'sk-cnt')">+ Add</button></div>
+        <div class="tags" id="sk-tags"></div>
+      </div>
+      <div class="field">
+        <div class="fl">Domain Interests</div>
+        <div class="tags" style="margin-top:4px">
+          <div class="tag int-tag" onclick="toggleInt(this,'ai/ml')">AI / ML</div>
+          <div class="tag int-tag" onclick="toggleInt(this,'web')">Web Dev</div>
+          <div class="tag int-tag" onclick="toggleInt(this,'data')">Data</div>
+          <div class="tag int-tag" onclick="toggleInt(this,'cloud')">Cloud</div>
+          <div class="tag int-tag" onclick="toggleInt(this,'security')">Cybersecurity</div>
+          <div class="tag int-tag" onclick="toggleInt(this,'mobile')">Mobile</div>
+          <div class="tag int-tag" onclick="toggleInt(this,'research')">Research</div>
+        </div>
+      </div>
+      <div class="field"><div class="fl">Experience</div>
+        <select id="exp-lvl"><option value="0">Student / Fresher</option><option value="1">Junior (1–2 yrs)</option><option value="2">Mid-Level (3–4 yrs)</option><option value="3">Senior (5+ yrs)</option></select>
+      </div>
+      <div class="field"><div class="fl">Work Style</div>
+        <select id="ws"><option value="builder">Builder — I like making things</option><option value="analyst">Analyst — I like working with data</option><option value="researcher">Researcher — I like going deep</option><option value="leader">Leader — I like coordinating</option></select>
+      </div>
+      <button class="btn" onclick="runFeature('career')">⚡ Predict My Career Paths</button>
+      <div class="nstrip"><div class="nb">TensorFlow ANN</div><div class="nb">Softmax</div><div class="nb">Cosine Similarity</div><div class="nb">ReLU</div><div class="nb">Dropout</div></div>
+    </div>
+    <div class="card" id="career-panel">
+      <div class="empty"><div class="ico">🧬</div><p>Add your skills and click<br><strong style="color:var(--text)">Predict My Career Paths</strong><br><br><span style="font-family:'Space Mono',monospace;font-size:10px;color:var(--purple)">Requires: python app.py running</span></p></div>
+    </div>
+  </div>
+</div>
+
+<!-- PAGE 2: SKILL DECAY -->
+<div class="page" id="page-decay">
+  <div class="hero">
+    <div class="ey">Market Signal Analysis · Velocity Scoring · 2025 Data<div class="dot"></div></div>
+    <h1 class="t">Skill<span class="ac">Decay</span><span class="fd">Detector</span></h1>
+    <p class="sub">Add skills → backend analyses 2025 job market velocity data → rates each as Rising / Stable / Declining with demand score and recommends what to learn next.</p>
+    <div class="chips"><div class="chip on">Velocity Scoring</div><div class="chip on">Market Analysis</div><div class="chip">40+ Skills</div><div class="chip">2025 Data</div></div>
+  </div>
+  <div class="two-col">
+    <div class="card glow">
+      <div class="field"><div class="fl">Skills to Analyse <span class="cnt" id="dk-cnt">0 added</span></div>
+        <div class="sinp"><input type="text" id="dk-inp" placeholder="php, jquery, python, rust..."><button class="btn bsm" onclick="addSkill('dk-inp','dk-tags',dSkills,'dk-cnt')">+ Add</button></div>
+        <div class="tags" id="dk-tags"></div>
+      </div>
+      <div class="field"><div class="fl">Industry</div>
+        <select id="dk-ind"><option>Software / Tech</option><option>Data Science / AI</option><option>Web Development</option><option>Cloud / DevOps</option><option>Cybersecurity</option></select>
+      </div>
+      <button class="btn" onclick="runFeature('decay')">📉 Analyse Market Value</button>
+      <div class="nstrip"><div class="nb">Velocity Scoring</div><div class="nb">ReLU Normalisation</div><div class="nb">Feature Weighting</div></div>
+    </div>
+    <div class="card" id="decay-panel">
+      <div class="empty"><div class="ico">📉</div><p>Add skills and click Analyse.<br><br>Backend scores each skill:<br><strong style="color:var(--green)">🚀 Rising</strong> / <strong style="color:var(--amber)">➡️ Stable</strong> / <strong style="color:var(--red)">📉 Declining</strong></p></div>
+    </div>
+  </div>
+</div>
+
+<!-- PAGE 3: INTERVIEW IQ -->
+<div class="page" id="page-iq">
+  <div class="hero">
+    <div class="ey">TF-IDF · Cosine Similarity · Topic Extraction<div class="dot"></div></div>
+    <h1 class="t">Interview<span class="ac">IQ</span><span class="fd">Scorer</span></h1>
+    <p class="sub">Paste JD + resume → backend runs TF-IDF extraction + cosine similarity per topic → scores your readiness and shows exactly what to revise with free resources.</p>
+    <div class="chips"><div class="chip on">TF-IDF</div><div class="chip on">Cosine Similarity</div><div class="chip">Topic-by-Topic</div><div class="chip">Revision Plan</div></div>
+  </div>
+  <div class="two-col">
+    <div class="card glow">
+      <div class="field"><div class="fl">Job Description</div>
+        <textarea id="jd-txt" placeholder="Paste the full job description...&#10;&#10;We are looking for a Python Developer with:&#10;- FastAPI / Flask REST APIs&#10;- PostgreSQL, Redis, Docker&#10;- AWS, Kubernetes&#10;- 2+ years experience..."></textarea>
+      </div>
+      <div class="field"><div class="fl">Your Resume / Skills</div>
+        <textarea id="res-iq-txt" placeholder="Paste your resume or list skills...&#10;&#10;Skills: Python, Flask, SQL, Git, Docker&#10;Projects: Built REST API with Flask...&#10;B.Tech CS 2024, CGPA: 8.7/10"></textarea>
+      </div>
+      <button class="btn" onclick="runFeature('iq')">🎯 Score My Interview Readiness</button>
+      <div class="nstrip"><div class="nb">TF-IDF</div><div class="nb">Cosine Similarity</div><div class="nb">Topic Extraction</div><div class="nb">Weighted Scoring</div></div>
+    </div>
+    <div class="card" id="iq-panel">
+      <div class="empty"><div class="ico">🎯</div><p>Paste JD + resume and click Score.<br><br>Backend extracts JD topics<br>and rates readiness topic-by-topic</p></div>
+    </div>
+  </div>
+</div>
+
+<!-- PAGE 4: ATS -->
+<div class="page" id="page-ats">
+  <div class="hero">
+    <div class="ey">10-Point ATS Engine · Keyword Matching · Weighted Scoring<div class="dot"></div></div>
+    <h1 class="t">ATS Resume<span class="ac">Analyser</span><span class="fd">Checker</span></h1>
+    <p class="sub">Paste resume → backend runs 10-point ATS scoring (same weights as Taleo/Workday) → exact score, missing keywords, improvement roadmap, and resources to close gaps.</p>
+    <div class="chips"><div class="chip on">10 ATS Checks</div><div class="chip on">Keyword Matching</div><div class="chip">5 Roles</div><div class="chip">Improvement Plan</div></div>
+  </div>
+  <div class="two-col">
+    <div class="card glow">
+      <div class="field"><div class="fl">Target Role</div>
+        <select id="ats-role"><option>Software Engineer</option><option>Data Scientist</option><option>AI/ML Engineer</option><option>Web Developer</option><option>DevOps Engineer</option></select>
+      </div>
+      <div class="field"><div class="fl">Resume Text</div>
+        <textarea id="ats-txt" style="min-height:200px" placeholder="Paste your full resume text...&#10;&#10;John Doe | Chennai | john@email.com | +91-9876543210&#10;LinkedIn: linkedin.com/in/johndoe | GitHub: github.com/johndoe&#10;&#10;EDUCATION&#10;B.Tech Computer Science — Anna University, 2024 | CGPA: 8.7/10&#10;&#10;SKILLS&#10;Python, Java, SQL, Git, Docker, React, Node.js, AWS&#10;&#10;EXPERIENCE&#10;ML Intern — ABC Tech (Jun–Aug 2023)&#10;• Developed deep learning model achieving 94% accuracy&#10;• Reduced inference time by 40%&#10;&#10;PROJECTS&#10;Student Score Predictor — Python, TensorFlow, Flask&#10;• Trained ANN on 1,200 samples, R² = 0.94"></textarea>
+      </div>
+      <button class="btn" onclick="runFeature('ats')">🔍 Analyse My Resume</button>
+      <div class="nstrip"><div class="nb">Keyword Matching</div><div class="nb">Cosine Similarity</div><div class="nb">10-Point Scoring</div></div>
+    </div>
+    <div class="card" id="ats-panel">
+      <div class="empty"><div class="ico">📄</div><p>Paste your resume and click<br><strong style="color:var(--text)">Analyse My Resume</strong><br><br>Backend runs 10-point ATS check</p></div>
+    </div>
+  </div>
+  <div id="ats-detail" style="display:none;margin-top:20px">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-bottom:18px">
+      <div class="card"><div style="font-family:'Syne',sans-serif;font-size:16px;font-weight:700;margin-bottom:12px">✅ Keywords Found</div>
+        <div class="sl">Must-Have</div><div id="kw-have" style="margin-bottom:12px"></div>
+        <div class="sl">Good-to-Have</div><div id="kw-good-have" style="margin-bottom:12px"></div>
+        <div class="sl">Tools</div><div id="kw-tools"></div>
+      </div>
+      <div class="card"><div style="font-family:'Syne',sans-serif;font-size:16px;font-weight:700;margin-bottom:12px">❌ Missing — Add These</div>
+        <div class="sl">🔴 Critical</div><div id="kw-miss" style="margin-bottom:12px"></div>
+        <div class="sl">🟡 Recommended</div><div id="kw-good-miss"></div>
+      </div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin-bottom:18px">
+      <div class="card"><div style="font-family:'Syne',sans-serif;font-size:15px;font-weight:700;margin-bottom:12px">📋 Sections</div><div id="ats-secs"></div></div>
+      <div class="card"><div style="font-family:'Syne',sans-serif;font-size:15px;font-weight:700;margin-bottom:12px">🔢 Metrics</div><div id="ats-quant"></div></div>
+      <div class="card"><div style="font-family:'Syne',sans-serif;font-size:15px;font-weight:700;margin-bottom:12px">🚩 Red Flags</div><div id="ats-flags"></div></div>
+    </div>
+    <div class="card" style="margin-bottom:18px">
+      <div style="font-family:'Syne',sans-serif;font-size:18px;font-weight:700;margin-bottom:6px">🗺️ Improvement Roadmap</div>
+      <div style="font-size:12px;color:var(--muted);margin-bottom:14px">Fix in order — highest impact first</div>
+      <div id="ats-imps"></div>
+    </div>
+    <div id="ats-res-box"></div>
+  </div>
+</div>
+
+<!-- PAGE 5: ROADMAP -->
+<div class="page" id="page-roadmap">
+  <div class="hero">
+    <div class="ey">Gap Analysis · Cosine Similarity · Personalised Planning<div class="dot"></div></div>
+    <h1 class="t">Learning<span class="ac">Roadmap</span><span class="fd">Generator</span></h1>
+    <p class="sub">Select role + skills + timeline → backend computes skill gap using cosine similarity → generates personalised week-by-week plan with YouTube + free course resources.</p>
+  </div>
+  <div class="two-col">
+    <div class="card glow">
+      <div class="field"><div class="fl">Target Role</div>
+        <select id="rm-role"><option>AI/ML Engineer</option><option>Full Stack Developer</option><option>Data Scientist</option><option>DevOps / Cloud Engineer</option><option>Cybersecurity Analyst</option></select>
+      </div>
+      <div class="field"><div class="fl">Current Skills <span class="cnt" id="rm-cnt">0 added</span></div>
+        <div class="sinp"><input type="text" id="rm-inp" placeholder="python, react, sql..."><button class="btn bsm" onclick="addSkill('rm-inp','rm-tags',rmSkills,'rm-cnt')">+ Add</button></div>
+        <div class="tags" id="rm-tags"></div>
+      </div>
+      <div class="field"><div class="fl">Hours per Week</div>
+        <select id="rm-hrs"><option value="5">5 hours / week</option><option value="10" selected>10 hours / week</option><option value="20">20 hours / week</option><option value="40">Full-time (40h)</option></select>
+      </div>
+      <div class="field"><div class="fl">Timeline</div>
+        <select id="rm-time"><option value="4">4 weeks</option><option value="8" selected>8 weeks</option><option value="12">12 weeks</option><option value="24">6 months</option></select>
+      </div>
+      <button class="btn" onclick="runFeature('roadmap')">🗺️ Build My Roadmap</button>
+      <div class="nstrip"><div class="nb">Gap Analysis</div><div class="nb">Cosine Similarity</div><div class="nb">Priority Ranking</div></div>
+    </div>
+    <div class="card" id="rm-panel" style="overflow-y:auto;max-height:760px">
+      <div class="empty"><div class="ico">🗺️</div><p>Select role, add skills, set timeline.<br><br>Backend builds personalised<br><strong style="color:var(--text)">week-by-week learning plan</strong></p></div>
+    </div>
+  </div>
+</div>
+
+<!-- PAGE 6: DOCS -->
+<div class="page" id="page-docs">
+  <div class="hero">
+    <div class="ey">Complete Technical Documentation</div>
+    <h1 class="t">NNDL<span class="ac">Concepts</span><span class="fd">Used</span></h1>
+    <p class="sub">Every neural network concept in CareerDNA — explained with what it does, where it is used, and the real code behind it.</p>
+  </div>
+  <div class="cg">
+    <div class="con"><div class="con-ico">🧠</div><div class="con-name">Multi-Class ANN</div><div class="con-where">→ train_model.py · build_model() · /api/career</div><div class="con-body">A 4-layer feedforward ANN classifies a 30-dimensional skill vector into one of 14 career paths. The output layer has 14 neurons — one per career — and Softmax converts them to probabilities. This is the same architecture as ImageNet image classifiers.</div><div class="con-code">Input(30) → Dense(128,<span class="hl">ReLU</span>) + BN + Drop(0.3)
+         → Dense(64,<span class="hl">ReLU</span>)  + BN + Drop(0.2)
+         → Dense(32,<span class="hl">ReLU</span>)
+         → Dense(14, <span class="hl">Softmax</span>)
+# 15,534 trainable params</div></div>
+
+    <div class="con"><div class="con-ico">📐</div><div class="con-name">Cosine Similarity</div><div class="con-where">→ app.py · cosine_similarity() · all routes</div><div class="con-body">Measures the angle between two skill sets used as vectors. Used alongside ANN probability for career matching, and as primary engine for Interview IQ. cos(θ)=1 means perfect match. Same math as Word2Vec and BERT semantic search.</div><div class="con-code">cos(θ) = (A·B) / (|A| × |B|)
+= |intersection| / (√|A| × √|B|)
+# 0 = no match, 1 = perfect match
+def cosine_similarity(a, b):
+    inter = len(set(a) & set(b))
+    mag = len(a)**0.5 * len(b)**0.5
+    return inter / mag</div></div>
+
+    <div class="con"><div class="con-ico">⚡</div><div class="con-name">ReLU Activation</div><div class="con-where">→ train_model.py · all hidden layers</div><div class="con-body">ReLU f(x)=max(0,x) introduces non-linearity. Without it, stacking Dense layers collapses to one linear equation — useless for complex patterns. ReLU also prevents vanishing gradients, keeping gradients at exactly 1 for positive inputs so deep networks can train.</div><div class="con-code">def relu(x): return max(0, x)
+# Keras: layers.Activation('relu')
+# 3 hidden layers use ReLU
+# Output layer uses Softmax instead
+# Used in JS too: relu(score * weight)</div></div>
+
+    <div class="con"><div class="con-ico">🎲</div><div class="con-name">Softmax Output</div><div class="con-where">→ train_model.py output · app.py career route</div><div class="con-body">Converts raw ANN logits to a probability distribution summing to 1. The career with the highest softmax output = predicted career. The match % shown is the softmax confidence score. Used identically in all multi-class classifiers.</div><div class="con-code">softmax(xi) = exp(xi) / Σ exp(xj)
+# All outputs ∈ [0,1], sum = 1.0
+# In app.py:
+def softmax(scores):
+    exps = [exp(s * 3) for s in scores]
+    total = sum(exps)
+    return [e / total for e in exps]</div></div>
+
+    <div class="con"><div class="con-ico">🛡️</div><div class="con-name">Dropout Regularisation</div><div class="con-where">→ train_model.py · Dropout(0.3/0.2)</div><div class="con-body">Randomly zeros 30%/20% of neurons per training batch. Forces the network to learn redundant distributed representations — cannot memorise training patterns. Without dropout, the ANN overfits to our synthetic dataset and gives wrong predictions on real user skills.</div><div class="con-code">layers.Dropout(<span class="hl">0.30</span>)  # 30% zeroed layer 1
+layers.Dropout(<span class="hl">0.20</span>)  # 20% zeroed layer 2
+# Inverted: remaining * 1/(1-p)
+# OFF during model.predict() inference</div></div>
+
+    <div class="con"><div class="con-ico">📊</div><div class="con-name">Batch Normalisation</div><div class="con-where">→ train_model.py · BatchNormalization() × 2</div><div class="con-body">Normalises layer outputs to mean≈0, std≈1 within each mini-batch. Stabilises training and allows Adam to use lr=0.001 safely. Without BN, our ANN would need careful lr tuning and would train 3–5× slower on the career classification task.</div><div class="con-code">x = layers.Dense(128)(inp)
+x = layers.BatchNormalization()  # μ≈0, σ²≈1
+x = layers.Activation('relu')
+x = layers.Dropout(0.3)
+# γ, β are learnable per-feature params</div></div>
+
+    <div class="con"><div class="con-ico">📋</div><div class="con-name">TF-IDF (Interview IQ)</div><div class="con-where">→ app.py · tfidf_weight() · /api/interview</div><div class="con-body">Weights each JD keyword by TF (how often it appears in this JD) × IDF (how rare it is across all JDs). This surfaces what the job truly requires vs. generic filler. A skill mentioned 4× in a niche JD scores higher than a common skill mentioned once.</div><div class="con-code">TF(w,d) = count(w in doc) / total_words
+IDF(w)  = log(N / docs_with_w) + 1
+TF-IDF  = TF × IDF
+# Converts raw JD text → weighted vector
+# Then cosine_sim(jd_vec, resume_vec)
+# = readiness score per topic</div></div>
+
+    <div class="con"><div class="con-ico">🎯</div><div class="con-name">Adam Optimizer</div><div class="con-where">→ train_model.py · Adam(lr=0.001)</div><div class="con-body">Adam = Momentum + RMSProp. Each weight gets its own adaptive learning rate. Momentum stores gradient direction, RMSProp scales by recent gradient magnitude. Converges 5–10× faster than vanilla SGD on the career classification task.</div><div class="con-code">m = β₁·m + (1-β₁)·g      # momentum
+v = β₂·v + (1-β₂)·g²     # RMSProp
+w = w - lr·m̂/(√v̂ + ε)  # update
+# β₁=0.9, β₂=0.999, lr=0.001, ε=1e-7</div></div>
+
+    <div class="con"><div class="con-ico">📉</div><div class="con-name">Cross-Entropy Loss</div><div class="con-where">→ train_model.py · compile(loss=...)</div><div class="con-body">Sparse Categorical Cross-Entropy is the loss for multi-class classification. Measures how wrong the ANN's probability distribution is vs. the true career label. Minimised via backpropagation over 150 epochs. L = −log(predicted_prob_of_true_class).</div><div class="con-code">model.compile(
+  loss=<span class="hl">'sparse_categorical_crossentropy'</span>,
+  optimizer='adam', metrics=['accuracy']
+)
+# 'sparse' = integer labels, not one-hot
+# Perfect prediction: L → 0
+# Wrong prediction: L → ∞</div></div>
+
+    <div class="con"><div class="con-ico">🔢</div><div class="con-name">MinMax Normalisation</div><div class="con-where">→ train_model.py · MinMaxScaler + app.py</div><div class="con-body">Scales all features to [0,1] before ANN input. Without this, skill count 25 dominates velocity score 0.8 in gradient descent. Critical rule: fit scaler ONLY on training data. Applying it to test data before fitting = data leakage = inflated accuracy.</div><div class="con-code">scaler = MinMaxScaler()
+X_train = scaler.fit_transform(X_train)
+X_test  = scaler.transform(X_test)
+# fit_transform: learns min/max from TRAIN
+# transform: uses SAME params on TEST
+# NEVER fit on test = data leakage</div></div>
+  </div>
+</div>
+
+<footer>
+  <div class="foot">
+    <div class="fl2">CAREERDNA · NNDL PROJECT · TENSORFLOW + FLASK + PYTHON · 2025</div>
+    <div class="fr">CareerDNA 🧬</div>
+  </div>
+</footer>
+
+<script>
+// ═══════════════════════════════════════════════════════
+// ALL RESULTS COME FROM FLASK BACKEND ONLY.
+// This file is served by Flask (templates/index.html).
+// Zero JS fallback. Zero hardcoding.
+// If server offline → show clear error with instructions.
+// ═══════════════════════════════════════════════════════
+
+let cSkills=[], dSkills=[], rmSkills=[], cInterests=[];
+
+// ── Server status check ──────────────────────────────────
+async function checkServer() {
+  const bar = document.getElementById('srv-bar');
+  const badge = document.getElementById('mbadge');
+  bar.style.display = 'block';
+  bar.className = 'chk';
+  bar.textContent = '⏳ Connecting to AI backend...';
+  try {
+    const r = await fetch('/api/status', { signal: AbortSignal.timeout(4000) });
+    const d = await r.json();
+    if (d.model === 'loaded') {
+      bar.className = 'on';
+      bar.textContent = `✅ AI Backend Online · TensorFlow ANN loaded · Accuracy: ${d.accuracy}% · All features ready`;
+      badge.textContent = 'ANN LIVE';
+      badge.style.color = 'var(--green)';
+      badge.style.borderColor = 'rgba(0,255,136,.3)';
+    } else {
+      bar.className = 'off';
+      bar.textContent = `⚠️ Server running but ANN not trained — Run: python train_model.py — then restart app.py`;
+      badge.textContent = 'NO MODEL';
+      badge.style.color = 'var(--amber)';
+    }
+  } catch {
+    bar.className = 'off';
+    bar.innerHTML = '❌ AI Backend Offline — Open terminal in careerdna folder → <strong>python app.py</strong> → refresh this page';
+    badge.textContent = 'OFFLINE';
+    badge.style.color = 'var(--red)';
+    badge.style.borderColor = 'rgba(255,68,102,.3)';
+  }
+}
+checkServer();
+
+// ── Navigation ───────────────────────────────────────────
+function goPage(name, btn) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('page-' + name).classList.add('active');
+  btn.classList.add('active');
+}
+function toggleInt(el, name) {
+  const i = cInterests.indexOf(name);
+  if (i >= 0) { cInterests.splice(i,1); el.classList.remove('sel'); }
+  else { cInterests.push(name); el.classList.add('sel'); }
+}
+function addSkill(inpId, tagsId, arr, cntId) {
+  const inp = document.getElementById(inpId);
+  inp.value.split(',').map(s=>s.trim().toLowerCase()).filter(s=>s&&!arr.includes(s)).forEach(v=>arr.push(v));
+  inp.value = '';
+  if (cntId) document.getElementById(cntId).textContent = arr.length + ' added';
+  renderTags(arr, tagsId, cntId);
+}
+function renderTags(arr, tagsId, cntId) {
+  const el = document.getElementById(tagsId);
+  el.innerHTML = '';
+  arr.forEach((s,i) => {
+    const d = document.createElement('div');
+    d.className = 'tag';
+    d.innerHTML = `${s} <span>×</span>`;
+    d.onclick = () => { arr.splice(i,1); if(cntId) document.getElementById(cntId).textContent=arr.length+' added'; renderTags(arr,tagsId,cntId); };
+    el.appendChild(d);
+  });
+}
+['sk-inp','dk-inp','rm-inp'].forEach((id,i) => {
+  const cfg = [['sk-tags',cSkills,'sk-cnt'],['dk-tags',dSkills,'dk-cnt'],['rm-tags',rmSkills,'rm-cnt']];
+  document.getElementById(id)?.addEventListener('keydown', e => { if(e.key==='Enter') addSkill(id,cfg[i][0],cfg[i][1],cfg[i][2]); });
+});
+
+// ── UI helpers ───────────────────────────────────────────
+function col(v){ return v>=70?'var(--green)':v>=45?'var(--cyan)':v>=25?'var(--amber)':'var(--red)'; }
+function scol(t){ return t==='rising'?'var(--green)':t==='stable'?'var(--amber)':'var(--red)'; }
+function showLoading(pid, msg) {
+  document.getElementById(pid).innerHTML = `<div class="lbox"><div class="spin"></div><p>${msg}</p></div>`;
+}
+function showError(pid, msg) {
+  const isNet = msg.toLowerCase().includes('fetch') || msg.toLowerCase().includes('failed') || msg.toLowerCase().includes('networkerror');
+  document.getElementById(pid).innerHTML = `
+    <div class="err-box">
+      <div class="err-ico">🔌</div>
+      <h3>${isNet ? 'Backend Not Running' : 'Error'}</h3>
+      <p>${isNet ? 'The AI backend (Flask) is not running.<br>Open a terminal in the careerdna folder and run:' : msg}</p>
+      ${isNet ? `<code>python app.py</code><p style="font-size:12px;color:var(--muted);margin-top:10px">Then refresh this page.</p>` : ''}
+    </div>`;
+}
+async function callAPI(endpoint, body) {
+  const r = await fetch(endpoint, { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(body), signal:AbortSignal.timeout(12000) });
+  const d = await r.json();
+  if (d.error) throw new Error(d.error);
+  return d;
+}
+function renderRes(d) {
+  if (!d || (!d.youtube?.length && !d.courses?.length)) return '';
+  let h = `<div class="res-box"><div class="res-title">📺 Free Learning Resources</div>`;
+  if (d.youtube?.length) d.youtube.forEach(v => h += `<a href="${v.url}" target="_blank" rel="noopener" class="yt-card"><div class="yt-thumb">▶</div><div class="yt-info"><div class="yt-name">${v.title}</div><div class="yt-ch">${v.channel}${v.for_skill?' · '+v.for_skill:''}</div></div><div style="font-family:'Space Mono',monospace;font-size:10px;color:var(--cyan)">→</div></a>`);
+  if (d.courses?.length) { h += `<div class="sl" style="margin:12px 0 8px">Free Courses</div>`; d.courses.forEach(c => h += `<a href="${c.url}" target="_blank" rel="noopener" class="cl"><div class="cl-title">${c.title}</div><div class="cl-arr">→</div></a>`); }
+  return h + `</div>`;
+}
+
+// ── Main dispatcher ──────────────────────────────────────
+async function runFeature(name) {
+  try {
+    if (name === 'career') await doCareer();
+    else if (name === 'decay') await doDecay();
+    else if (name === 'iq') await doIQ();
+    else if (name === 'ats') await doATS();
+    else if (name === 'roadmap') await doRoadmap();
+  } catch(e) { /* caught inside each */ }
+}
+
+// ── Career Path ──────────────────────────────────────────
+async function doCareer() {
+  if (!cSkills.length) { alert('Please add at least one skill.'); return; }
+  showLoading('career-panel', 'RUNNING ANN INFERENCE...');
+  try {
+    const d = await callAPI('/api/career', { skills:cSkills, exp_level:+document.getElementById('exp-lvl').value, work_style:document.getElementById('ws').value, interests:cInterests });
+    const top = d.careers[0];
+    let h = `<div class="sh fu"><div class="slb">Top ANN Match</div><div style="font-family:'Syne',sans-serif;font-size:28px;font-weight:800;color:var(--cyan);margin:8px 0">${top.icon} ${top.name}</div><div style="font-family:'Syne',sans-serif;font-size:26px;font-weight:800;color:var(--green)">${top.match_pct}% match</div><div style="font-size:11px;color:var(--muted);margin-top:5px">${top.salary} · ${top.growth}</div><div style="font-family:'Space Mono',monospace;font-size:10px;color:var(--purple);margin-top:4px">ANN: ${top.ann_prob}% · CosSim: ${top.cos_sim}%</div></div>`;
+    h += `<div class="sl" style="margin-bottom:10px">Top 5 (ANN + Softmax Ranked)</div>`;
+    d.careers.forEach((r,i) => {
+      const c = i===0?'var(--green)':i===1?'var(--cyan)':i===2?'var(--amber)':'var(--muted)';
+      h += `<div class="cc fu" style="animation-delay:${i*.07}s"><div class="cc-top"><div><div class="cc-rank">#${i+1}</div><div class="cc-name">${r.icon} ${r.name}</div></div><div style="text-align:right"><div class="cc-match" style="color:${c}">${r.match_pct}%</div><div class="cc-meta">${r.salary}</div></div></div><div style="height:4px;background:var(--border2);border-radius:2px;overflow:hidden;margin-bottom:9px"><div style="height:100%;width:${r.match_pct}%;background:${c};transition:width 1s ease"></div></div><div class="cc-tags">${(r.have||[]).map(k=>`<span class="kt kh">✓ ${k}</span>`).join('')}${(r.missing||[]).map(k=>`<span class="kt km">+ ${k}</span>`).join('')}</div><div style="font-size:11px;color:var(--muted);margin-top:4px">${r.growth} · ANN confidence: ${r.ann_prob}%</div></div>`;
+    });
+    h += renderRes(d.resources);
+    document.getElementById('career-panel').innerHTML = h;
+  } catch(e) { showError('career-panel', e.message); }
+}
+
+// ── Skill Decay ──────────────────────────────────────────
+async function doDecay() {
+  if (!dSkills.length) { alert('Please add at least one skill.'); return; }
+  showLoading('decay-panel', 'ANALYSING MARKET SIGNALS...');
+  try {
+    const d = await callAPI('/api/decay', { skills:dSkills, industry:document.getElementById('dk-ind').value });
+    const s = d.summary;
+    let h = `<div class="ms-row"><div class="ms"><div class="ms-v" style="color:var(--green)">${s.rising}</div><div class="ms-l">Rising 🚀</div></div><div class="ms"><div class="ms-v" style="color:var(--amber)">${s.stable}</div><div class="ms-l">Stable ➡️</div></div><div class="ms"><div class="ms-v" style="color:var(--red)">${s.declining}</div><div class="ms-l">Declining 📉</div></div></div>`;
+    h += `<div class="sl" style="margin-bottom:10px">Market Velocity Analysis</div>`;
+    d.results.forEach((r,i) => {
+      const c = scol(r.trend);
+      const ic = r.trend==='rising'?'🚀':r.trend==='stable'?'➡️':'📉';
+      const tc = r.trend==='rising'?'tup':r.trend==='stable'?'tst':'tdn';
+      h += `<div class="di fu" style="animation-delay:${i*.06}s"><div class="di-ico">${ic}</div><div class="di-info"><div class="di-name">${r.skill}</div><div class="di-note">${r.note}</div></div><div class="dtag ${tc}">${r.trend.toUpperCase()}</div><div class="di-bar"><div class="di-bg"><div class="di-fill" style="width:${r.demand_score}%;background:${c}"></div></div><div class="di-pct" style="color:${c}">${r.demand_score}/100</div></div></div>`;
+    });
+    if (d.recommendations?.length) h += `<div style="margin-top:13px;padding:12px;background:rgba(0,212,255,.05);border:1px solid rgba(0,212,255,.15);border-radius:8px"><div class="sl" style="margin-bottom:7px">Recommends — Learn Next</div><div>${d.recommendations.map(r=>`<span style="font-family:'Space Mono',monospace;font-size:11px;padding:3px 10px;border-radius:4px;background:rgba(0,212,255,.1);border:1px solid rgba(0,212,255,.25);color:var(--cyan);margin:3px;display:inline-block">→ ${r}</span>`).join('')}</div></div>`;
+    h += renderRes(d.resources);
+    document.getElementById('decay-panel').innerHTML = h;
+  } catch(e) { showError('decay-panel', e.message); }
+}
+
+// ── Interview IQ ─────────────────────────────────────────
+async function doIQ() {
+  const jd = document.getElementById('jd-txt').value.trim();
+  const res = document.getElementById('res-iq-txt').value.trim();
+  if (jd.length < 40) { alert('Please paste a job description.'); return; }
+  showLoading('iq-panel', 'RUNNING TF-IDF + COSINE ANALYSIS...');
+  try {
+    const d = await callAPI('/api/interview', { jd, resume:res });
+    const vc = d.overall>=80?'var(--green)':d.overall>=60?'var(--cyan)':d.overall>=40?'var(--amber)':'var(--red)';
+    let h = `<div class="sh fu"><div class="slb">Interview Readiness</div><div class="sv" style="color:${vc}">${d.overall}%</div><div class="sverd" style="color:${vc}">${d.verdict}</div></div>`;
+    h += `<div class="sl" style="margin-bottom:10px">Topic-by-Topic (TF-IDF + Cosine)</div>`;
+    (d.topics||[]).slice(0,9).forEach((t,i) => {
+      const c = col(t.readiness);
+      h += `<div class="tp fu" style="animation-delay:${i*.06}s"><div class="tp-head"><div class="tp-name">${t.topic}</div><div class="tp-sc" style="color:${c}">${t.readiness}%</div></div><div class="tp-bar"><div class="tp-fill" style="width:${t.readiness}%;background:${c}"></div></div>${t.missing?.length?`<div class="tp-tip">📌 Revise: <strong style="color:var(--amber)">${t.missing.slice(0,4).join(', ')}</strong></div>`:`<div class="tp-tip" style="color:var(--green)">✅ Good coverage</div>`}</div>`;
+    });
+    if (d.revise?.length) h += `<div style="margin-top:12px;padding:12px;background:rgba(255,170,0,.05);border:1px solid rgba(255,170,0,.15);border-radius:8px"><div class="sl" style="margin-bottom:7px">📌 Revise Before Interview</div><div>${d.revise.map(k=>`<span style="font-family:'Space Mono',monospace;font-size:10px;padding:3px 9px;border-radius:4px;background:rgba(255,170,0,.1);border:1px solid rgba(255,170,0,.25);color:var(--amber);margin:3px;display:inline-block">${k}</span>`).join('')}</div></div>`;
+    h += renderRes(d.resources);
+    document.getElementById('iq-panel').innerHTML = h;
+  } catch(e) { showError('iq-panel', e.message); }
+}
+
+// ── ATS Resume ───────────────────────────────────────────
+async function doATS() {
+  const resume = document.getElementById('ats-txt').value.trim();
+  const role = document.getElementById('ats-role').value;
+  if (resume.length < 80) { alert('Please paste your full resume text.'); return; }
+  showLoading('ats-panel', 'RUNNING 10-POINT ATS ANALYSIS...');
+  document.getElementById('ats-detail').style.display = 'none';
+  try {
+    const d = await callAPI('/api/ats', { resume, role });
+    document.getElementById('ats-panel').innerHTML = `
+      <div class="sh fu"><div class="slb">ATS Score</div><div class="sv" style="color:${d.verdict_color}">${d.overall}%</div><div class="sverd" style="color:${d.verdict_color}">${d.verdict}</div></div>
+      <div class="sl" style="margin-bottom:10px">8-Point Breakdown</div>
+      ${Object.entries(d.scores).map(([lb,v])=>`<div class="br"><div class="br-label">${lb}</div><div class="br-track"><div class="br-fill" style="width:${v}%;background:${col(v)}"></div></div><div class="br-val" style="color:${col(v)}">${v}%</div></div>`).join('')}
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:12px">
+        ${[['📝',d.stats.word_count,'Words'],['🔑',d.stats.keywords_found,'KWs'],['🔢',d.stats.quant_count,'Metrics'],['💪',d.stats.verb_count,'Verbs'],['📋',d.stats.sections_found+'/5','Sections']].map(([ic,v,l])=>`<div class="ms"><div class="ms-v">${v}</div><div class="ms-l">${l}</div></div>`).join('')}
+      </div>`;
+    document.getElementById('ats-detail').style.display = 'block';
+    const fk = (id,arr,cls,p) => { const e=document.getElementById(id); e.innerHTML=arr?.length?arr.map(k=>`<span class="kw ${cls}">${p}${k}</span>`).join(''):`<span style="font-size:12px;color:var(--muted)">None</span>`; };
+    fk('kw-have',d.keywords.must_matched,'kw-ok','✓ '); fk('kw-good-have',d.keywords.good_matched,'kw-ok','✓ '); fk('kw-tools',d.keywords.tools_matched,'kw-ok','✓ '); fk('kw-miss',d.keywords.must_missing,'kw-no','+ '); fk('kw-good-miss',d.keywords.good_missing,'kw-warn','+ ');
+    document.getElementById('ats-secs').innerHTML = ['contact','education','experience','skills','projects'].map(s=>{const ok=d.sections.found.includes(s);return`<div class="ats-sr"><span>${ok?'✅':'❌'}</span><span style="flex:1;font-weight:${ok?400:600};color:${ok?'var(--text)':'var(--red)'}">${s}</span><span style="font-family:'Space Mono',monospace;font-size:9px;color:${ok?'var(--green)':'var(--red)'}">${ok?'FOUND':'MISSING'}</span></div>`;}).join('');
+    const q=d.quantification; document.getElementById('ats-quant').innerHTML=`<div style="font-family:'Syne',sans-serif;font-size:24px;font-weight:800;color:${q.count>=5?'var(--green)':q.count>=2?'var(--amber)':'var(--red)'}">${q.count}</div><div style="font-size:11px;color:var(--muted);margin-bottom:8px">metrics found</div>${(q.examples||[]).slice(0,4).map(e=>`<div style="font-size:11px;background:rgba(0,255,136,.07);border:1px solid rgba(0,255,136,.15);border-radius:4px;padding:3px 8px;margin-bottom:4px;color:var(--green)">${e}</div>`).join('')}${q.count<3?'<div style="font-size:11px;color:var(--amber);margin-top:6px">💡 Add numbers to every bullet</div>':''}`;
+    const rf=d.red_flags||[]; document.getElementById('ats-flags').innerHTML=rf.length?rf.map(f=>`<div style="display:flex;gap:8px;padding:6px 0;border-bottom:1px solid var(--border);font-size:12px"><span>🚩</span><span style="color:var(--muted)">${f}</span></div>`).join(''):`<div style="color:var(--green);font-size:13px;font-weight:600">✅ No red flags!</div>`;
+    document.getElementById('ats-imps').innerHTML=(d.improvements||[]).map(imp=>{const cls=imp.priority?.includes('Critical')?'imp-c':imp.priority?.includes('High')?'imp-h':imp.priority?.includes('Medium')?'imp-m':'imp-o';return`<div class="imp ${cls}"><div class="imp-top"><span class="imp-cat">${imp.category}</span><span class="imp-pts">${imp.impact}</span></div><div class="imp-iss">${imp.priority||''} · ${imp.issue}</div><div class="imp-fix">✅ ${imp.fix}</div></div>`;}).join('')||`<div style="color:var(--green);padding:12px">✅ Great resume!</div>`;
+    document.getElementById('ats-res-box').innerHTML = renderRes(d.resources);
+  } catch(e) { showError('ats-panel', e.message); }
+}
+
+// ── Roadmap ──────────────────────────────────────────────
+async function doRoadmap() {
+  showLoading('rm-panel', 'COMPUTING SKILL GAP...');
+  try {
+    const d = await callAPI('/api/roadmap', { role:document.getElementById('rm-role').value, skills:rmSkills, timeline:+document.getElementById('rm-time').value, hours:+document.getElementById('rm-hrs').value });
+    const rc = d.readiness>=70?'var(--green)':d.readiness>=40?'var(--amber)':'var(--red)';
+    let h = `<div class="sh fu"><div class="slb">Readiness for ${document.getElementById('rm-role').value}</div><div class="sv" style="color:${rc}">${d.readiness}%</div><div style="font-size:12px;color:var(--muted);margin-top:5px">${d.have.length} ready · ${d.missing.length} to learn · ~${d.total_hours}h total</div></div>`;
+    h += `<div class="ms-row"><div class="ms"><div class="ms-v" style="color:var(--green)">${d.have.length}</div><div class="ms-l">Have</div></div><div class="ms"><div class="ms-v" style="color:var(--red)">${d.missing.length}</div><div class="ms-l">Missing</div></div><div class="ms"><div class="ms-v" style="color:var(--cyan)">${d.timeline}w</div><div class="ms-l">Timeline</div></div></div>`;
+    if (d.missing.length) h += `<div style="margin-bottom:12px;padding:11px;background:rgba(255,68,102,.05);border:1px solid rgba(255,68,102,.15);border-radius:8px"><div class="sl" style="margin-bottom:6px">Skills to Learn</div>${d.missing.map(s=>`<span style="font-family:'Space Mono',monospace;font-size:10px;padding:3px 8px;border-radius:3px;background:rgba(255,68,102,.1);border:1px solid rgba(255,68,102,.2);color:var(--red);margin:3px;display:inline-block">+ ${s}</span>`).join('')}</div>`;
+    h += `<div class="sl" style="margin-bottom:9px">${d.timeline}-Week Roadmap · ${d.hours}h/week</div>`;
+    const wlen = (d.weeks||[]).length || 1;
+    const wstep = Math.floor(d.timeline / wlen);
+    (d.weeks||[]).forEach((w,i) => {
+      h += `<div class="wk fu" style="animation-delay:${i*.07}s"><div class="wk-h" onclick="this.nextElementSibling.classList.toggle('open')"><div class="wk-num">WEEK ${i*wstep+1}–${Math.min(d.timeline,(i+1)*wstep)}</div><div class="wk-title">${w.t}</div><div style="font-family:'Space Mono',monospace;font-size:9px;padding:2px 7px;border-radius:3px;background:rgba(0,212,255,.08);color:var(--cyan);border:1px solid rgba(0,212,255,.2)">${d.hours}h</div><div style="color:var(--muted);margin-left:8px">▼</div></div><div class="wk-b ${i===0?'open':''}">`;
+      w.items.forEach(it => h += `<div class="wk-item">${it}</div>`);
+      h += `</div></div>`;
+    });
+    h += renderRes(d.resources);
+    document.getElementById('rm-panel').innerHTML = h;
+  } catch(e) { showError('rm-panel', e.message); }
+}
+</script>
+</body>
+</html>
