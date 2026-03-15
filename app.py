@@ -704,9 +704,5 @@ def status():
 import os
 
 if __name__ == "__main__":
-    print("\n" + "="*50)
-    print("  CareerDNA — Neural Career Intelligence")
-    print("="*50 + "\n")
-
-    port = int(os.environ.get("PORT", 10000))
+    port = int(os.environ.get("PORT", 10000))  # Render provides PORT
     app.run(host="0.0.0.0", port=port)
