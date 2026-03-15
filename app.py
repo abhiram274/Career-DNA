@@ -701,9 +701,12 @@ def status():
         "message":    "CareerDNA AI backend running" if MODEL else "Run python train_model.py first"
     })
 
-if __name__ == '__main__':
+import os
+
+if __name__ == "__main__":
     print("\n" + "="*50)
     print("  CareerDNA — Neural Career Intelligence")
-    print("  http://localhost:5000")
     print("="*50 + "\n")
-    app.run(debug=True, port=5000)
+
+    port = int(os.environ.get("PORT", 10000))
+    app.run(host="0.0.0.0", port=port)
